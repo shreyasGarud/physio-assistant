@@ -218,3 +218,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Patient data and local files: never commit these
+*.db
+*.sqlite
+*.sqlite3
+data/
+backups/
+exports/
+.streamlit/secrets.toml
