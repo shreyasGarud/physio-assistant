@@ -63,4 +63,24 @@ def test_delete_exercise(path):
     eid = db.add_exercise("Bridging", "Lift your hips slowly.", path=path)
     db.delete_exercise(eid, path=path)
     assert db.list_exercises(path=path) == []
-    
+
+def test_update_patient(path):
+    pid = db.add_patient("Demo Patient", age=40, package_total=5, path=path)
+    db.update_patient(pid, "Demo Patient", age=41, package_total=8, path=path)
+    row = db.get_patient(pid, path=path)
+    assert row["age"] == 41
+    assert row["package_total"] == 8
+
+
+def test_update_missing_patient_rejected(path):
+    with pytest.raises(ValueError):
+        db.update_patient(999, "Nobody", path=path)
+
+
+def test_delete_patient_removes_sessions(path):
+    pid = db.add_patient("Demo Patient", package_total=5, path=path)
+    db.add_session(pid, pain_score=4, path=path)
+    db.delete_patient(pid, path=path)
+    assert db.list_patients(path=path) == []
+    assert db.list_sessions(pid, path=path) == []
+       

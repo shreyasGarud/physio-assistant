@@ -181,5 +181,36 @@ def delete_exercise(exercise_id, path=DB_PATH):
         cur = conn.execute("DELETE FROM exercises WHERE id = ?", (exercise_id,))
         if cur.rowcount == 0:
             raise ValueError("Exercise not found")
-        
+
+def get_patient(patient_id, path=DB_PATH):
+    with connect(path) as conn:
+        row = conn.execute("SELECT * FROM patients WHERE id = ?", (patient_id,)).fetchone()
+    if row is None:
+        raise ValueError("Patient not found")
+    return row
+
+
+def update_patient(patient_id, name, age=None, condition=None, contact=None,
+                   package_total=0, path=DB_PATH):
+    name = _text(name, "Name")
+    age = _int_in_range(age, "Age", 0, 120)
+    package_total = _int_in_range(package_total, "Package size", 0, 200)
+    with connect(path) as conn:
+        cur = conn.execute(
+            "UPDATE patients SET name = ?, age = ?, condition = ?, contact = ?, "
+            "package_total = ? WHERE id = ?",
+            (name, age, _text(condition, "Condition", False), _text(contact, "Contact", False),
+             package_total, patient_id))
+        if cur.rowcount == 0:
+            raise ValueError("Patient not found")
+
+
+def delete_patient(patient_id, path=DB_PATH):
+    """Removes the patient and all of their session records."""
+    with connect(path) as conn:
+        if conn.execute("SELECT 1 FROM patients WHERE id = ?", (patient_id,)).fetchone() is None:
+            raise ValueError("Patient not found")
+        conn.execute("DELETE FROM sessions WHERE patient_id = ?", (patient_id,))
+        conn.execute("DELETE FROM patients WHERE id = ?", (patient_id,))
+
     
