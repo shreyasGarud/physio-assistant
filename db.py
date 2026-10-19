@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS sessions (
     rom_degrees INTEGER CHECK (rom_degrees IS NULL OR rom_degrees BETWEEN 0 AND 360),
     created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
 
 
@@ -213,4 +218,23 @@ def delete_patient(patient_id, path=DB_PATH):
         conn.execute("DELETE FROM sessions WHERE patient_id = ?", (patient_id,))
         conn.execute("DELETE FROM patients WHERE id = ?", (patient_id,))
 
-    
+ALLOWED_SETTINGS = ("clinic_name", "clinic_contact", "general_note")
+
+
+def get_setting(key, default="", path=DB_PATH):
+    if key not in ALLOWED_SETTINGS:
+        raise ValueError("Unknown setting")
+    with connect(path) as conn:
+        row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
+    return row["value"] if row else default
+
+
+def set_setting(key, value, path=DB_PATH):
+    if key not in ALLOWED_SETTINGS:
+        raise ValueError("Unknown setting")
+    value = (value or "").strip()
+    if len(value) > 500:
+        raise ValueError("Text is too long (500 characters at most)")
+    with connect(path) as conn:
+        conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
+            

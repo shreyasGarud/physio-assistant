@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home exercise sheet</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Noto Sans Devanagari", "Noto Sans", Arial, sans-serif;
+         color: #12302E; margin: 0; padding: 24px; }
+  .header { border-bottom: 3px solid #0F766E; padding-bottom: 10px; margin-bottom: 16px; }
+  h1 { margin: 0; color: #0F766E; font-size: 24px; }
+  .meta { color: #444; font-size: 14px; margin-top: 4px; }
+  .ex { border: 1px solid #CFE5E2; border-radius: 8px; padding: 12px 14px;
+        margin-bottom: 12px; page-break-inside: avoid; }
+  .ex h2 { margin: 0 0 6px 0; font-size: 18px; }
+  .dose { display: inline-block; background: #E1F0EE; border-radius: 6px;
+          padding: 2px 8px; font-size: 14px; font-weight: bold; }
+  .text { white-space: pre-line; margin: 8px 0 0 0; font-size: 15px; line-height: 1.5; }
+  .caution { margin-top: 8px; padding: 6px 10px; background: #FFF7E6;
+             border-left: 4px solid #D97706; font-size: 14px; white-space: pre-line; }
+  .note { margin-top: 16px; padding: 10px 12px; border: 1px dashed #0F766E;
+          border-radius: 8px; white-space: pre-line; }
+  .footer { margin-top: 18px; font-size: 12px; color: #555; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ clinic_name or "Home exercise sheet" }}</h1>
+    <div class="meta">
+      {% if clinic_contact %}{{ clinic_contact }} &nbsp;|&nbsp; {% endif %}
+      {% if patient_label %}For: {{ patient_label }} &nbsp;|&nbsp; {% endif %}
+      {{ sheet_date }}
+    </div>
+  </div>
+
+  {% for ex in items %}
+  <div class="ex">
+    <h2>{{ loop.index }}. {{ ex["name"] }}</h2>
+    <span class="dose">{{ ex["sets"] }} sets × {{ ex["reps"] }} reps</span>
+    <p class="text">{{ ex["instructions"] }}</p>
+    {% if ex["precautions"] %}<div class="caution">{{ ex["precautions"] }}</div>{% endif %}
+  </div>
+  {% endfor %}
+
+  {% if general_note %}<div class="note">{{ general_note }}</div>{% endif %}
+
+  <div class="footer">
+    {% if clinic_name %}Prepared by {{ clinic_name }}{% endif %}
+  </div>
+</body>
+</html>

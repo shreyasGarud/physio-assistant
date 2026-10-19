@@ -76,11 +76,21 @@ def test_update_missing_patient_rejected(path):
     with pytest.raises(ValueError):
         db.update_patient(999, "Nobody", path=path)
 
-
 def test_delete_patient_removes_sessions(path):
     pid = db.add_patient("Demo Patient", package_total=5, path=path)
     db.add_session(pid, pain_score=4, path=path)
     db.delete_patient(pid, path=path)
     assert db.list_patients(path=path) == []
     assert db.list_sessions(pid, path=path) == []
-       
+
+def test_settings_roundtrip(path):
+    assert db.get_setting("clinic_name", path=path) == ""
+    db.set_setting("clinic_name", "Demo Clinic", path=path)
+    db.set_setting("clinic_name", "Demo Clinic 2", path=path)
+    assert db.get_setting("clinic_name", path=path) == "Demo Clinic 2"
+
+
+def test_unknown_setting_rejected(path):
+    with pytest.raises(ValueError):
+        db.set_setting("something_else", "x", path=path)
+   

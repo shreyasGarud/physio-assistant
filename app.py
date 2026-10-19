@@ -6,6 +6,7 @@ import db
 import theme
 import ui_patients
 import ui_exercises
+import ui_sheets
 
 db.init_db()
 theme.apply()
@@ -20,6 +21,7 @@ st.warning(
 PAGES = {
     "Patients": ui_patients.show,
     "Exercise library": ui_exercises.show,
+    "Home sheets": ui_sheets.show,
 }
 choice = st.sidebar.radio("Go to", list(PAGES))
 PAGES[choice]()
