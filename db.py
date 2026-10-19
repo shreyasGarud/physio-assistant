@@ -155,3 +155,31 @@ def list_sessions(patient_id, path=DB_PATH):
             "SELECT * FROM sessions WHERE patient_id = ? ORDER BY session_date, id",
             (patient_id,)).fetchall()
     
+def update_exercise(exercise_id, name, instructions, body_area=None, default_sets=3,
+                    default_reps=10, precautions=None, media_path=None, path=DB_PATH):
+    name = _text(name, "Exercise name")
+    instructions = _text(instructions, "Instructions")
+    default_sets = _int_in_range(default_sets, "Sets", 1, 20)
+    default_reps = _int_in_range(default_reps, "Reps", 1, 200)
+    with connect(path) as conn:
+        try:
+            cur = conn.execute(
+                "UPDATE exercises SET name = ?, body_area = ?, default_sets = ?, "
+                "default_reps = ?, instructions = ?, precautions = ?, media_path = ? "
+                "WHERE id = ?",
+                (name, _text(body_area, "Body area", False), default_sets, default_reps,
+                 instructions, _text(precautions, "Precautions", False),
+                 _text(media_path, "Media path", False), exercise_id))
+        except sqlite3.IntegrityError:
+            raise ValueError("An exercise named '{}' already exists".format(name))
+        if cur.rowcount == 0:
+            raise ValueError("Exercise not found")
+
+
+def delete_exercise(exercise_id, path=DB_PATH):
+    with connect(path) as conn:
+        cur = conn.execute("DELETE FROM exercises WHERE id = ?", (exercise_id,))
+        if cur.rowcount == 0:
+            raise ValueError("Exercise not found")
+        
+    

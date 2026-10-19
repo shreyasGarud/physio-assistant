@@ -46,3 +46,21 @@ def test_bad_date_rejected(path):
     with pytest.raises(ValueError):
         db.add_session(pid, session_date="14-10-2026", path=path)
         
+def test_update_exercise(path):
+    eid = db.add_exercise("Bridging", "Lift your hips slowly.", path=path)
+    db.update_exercise(eid, "Bridging", "Lift slowly and hold.", default_sets=2, path=path)
+    row = db.list_exercises(path=path)[0]
+    assert row["default_sets"] == 2
+    assert row["instructions"] == "Lift slowly and hold."
+
+
+def test_update_missing_exercise_rejected(path):
+    with pytest.raises(ValueError):
+        db.update_exercise(999, "Nothing", "Nothing here.", path=path)
+
+
+def test_delete_exercise(path):
+    eid = db.add_exercise("Bridging", "Lift your hips slowly.", path=path)
+    db.delete_exercise(eid, path=path)
+    assert db.list_exercises(path=path) == []
+    
