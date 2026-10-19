@@ -237,4 +237,26 @@ def set_setting(key, value, path=DB_PATH):
         raise ValueError("Text is too long (500 characters at most)")
     with connect(path) as conn:
         conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
-            
+
+def patients_summary(path=DB_PATH):
+    """One row per patient with sessions used and the date of the last session."""
+    with connect(path) as conn:
+        rows = conn.execute(
+            "SELECT p.id, p.name, p.condition, p.package_total, "
+            "COUNT(s.id) AS used, MAX(s.session_date) AS last_session "
+            "FROM patients p LEFT JOIN sessions s ON s.patient_id = p.id "
+            "GROUP BY p.id ORDER BY p.name").fetchall()
+    return [dict(r) for r in rows]
+
+
+def count_exercises(path=DB_PATH):
+    with connect(path) as conn:
+        return conn.execute("SELECT COUNT(*) FROM exercises").fetchone()[0]
+
+
+def count_sessions_since(date_iso, path=DB_PATH):
+    date.fromisoformat(date_iso)  # rejects anything that is not a real date
+    with connect(path) as conn:
+        return conn.execute(
+            "SELECT COUNT(*) FROM sessions WHERE session_date >= ?", (date_iso,)).fetchone()[0]
+               

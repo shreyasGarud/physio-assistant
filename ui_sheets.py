@@ -2,6 +2,7 @@ from datetime import date
 import streamlit as st
 import streamlit.components.v1 as components
 import db
+import theme
 import sheet
 from ui_common import show_flash, done
 
@@ -27,7 +28,7 @@ def _clinic_details():
 
 
 def show():
-    st.header("Home exercise sheet")
+    theme.page_header("📄", "Home exercise sheets", "Pick exercises, preview, approve and print")
     show_flash()
 
     exercises = [dict(r) for r in db.list_exercises()]

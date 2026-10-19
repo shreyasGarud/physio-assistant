@@ -93,4 +93,25 @@ def test_settings_roundtrip(path):
 def test_unknown_setting_rejected(path):
     with pytest.raises(ValueError):
         db.set_setting("something_else", "x", path=path)
+        
+def test_patients_summary_counts_and_last_date(path):
+    pid = db.add_patient("Demo Patient", package_total=5, path=path)
+    db.add_session(pid, pain_score=6, session_date="2026-10-01", path=path)
+    db.add_session(pid, pain_score=4, session_date="2026-10-08", path=path)
+    db.add_patient("Demo New", package_total=3, path=path)
+    rows = {r["name"]: r for r in db.patients_summary(path=path)}
+    assert rows["Demo Patient"]["used"] == 2
+    assert rows["Demo Patient"]["last_session"] == "2026-10-08"
+    assert rows["Demo New"]["used"] == 0
+    assert rows["Demo New"]["last_session"] is None
+
+
+def test_count_sessions_since(path):
+    pid = db.add_patient("Demo Patient", package_total=5, path=path)
+    db.add_session(pid, session_date="2026-10-01", path=path)
+    db.add_session(pid, session_date="2026-10-10", path=path)
+    assert db.count_sessions_since("2026-10-05", path=path) == 1
+    with pytest.raises(ValueError):
+        db.count_sessions_since("not a date", path=path)
+        
    

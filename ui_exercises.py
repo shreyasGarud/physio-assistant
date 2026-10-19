@@ -1,10 +1,11 @@
 import streamlit as st
 import db
+import theme
 from ui_common import show_flash, done
 
 
 def show():
-    st.header("Exercise library")
+    theme.page_header("🏋️", "Exercise library", "Your own exercises, in your own words")
     show_flash()
     st.caption("Add your own exercises once. Every home sheet will use your wording.")
 
